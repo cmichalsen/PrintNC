@@ -52,10 +52,13 @@
 + ---
 + Version 8
 +   Add tool change support
++ ---
++ Version 9
++   Merge rapidchange atc stuff in
 + =======================================
 
 
-POST_NAME = "Grblhal (mm) (*.gcode)"
+POST_NAME = "Grblhal PrintNC ToolChange (mm) (*.gcode)"
 
 FILE_EXTENSION = "gcode"
 
@@ -63,6 +66,8 @@ UNITS = "MM"
 DIRECT_OUTPUT = "VTransfer"
 
 LASER_SUPPORT = "YES"
+
+SUBSTITUTE = "({)}"
 
 +------------------------------------------------
 +    Line terminating characters
@@ -98,6 +103,7 @@ VAR Z_HOME_POSITION = [ZH|A|Z|1.3]
 VAR ARC_CENTRE_I_INC_POSITION = [I|A|I|1.3]
 VAR ARC_CENTRE_J_INC_POSITION = [J|A|J|1.3]
 
+VAR SAFE_Z_HEIGHT = [SAFEZ|A|Z|1.3]
 
 +================================================
 +
@@ -116,6 +122,19 @@ begin REVISION_COMMENT
 +---------------------------------------------------
 
 begin HEADER
+
+"( [TP_FILENAME] )"
+"( File created: [DATE] - [TIME])"
+"( For FlexiHal RapidChange ATC Vectric)"
+"( Material Size)"
+"( X= [XLENGTH], Y= [YLENGTH], Z= [ZLENGTH])"
+"([FILE_NOTES])"
+"(Toolpaths used in this file:)"
+"([TOOLPATHS_OUTPUT])"
+"(Toolpath:- [TOOLPATH_NAME])"
+"([TOOLPATH_NOTES])"
+"(Tools used in this file: )"
+"([TOOLS_USED])"
 
 "T1"
 "G17"
@@ -139,9 +158,22 @@ begin SPINDLE_ON
 begin TOOLCHANGE
 "M5"
 "G0 [ZH]"
+"([TOOLNAME])"
 "M6 T[T]"
 "M3 [S]"
 "G4 P5"
+
++---------------------------------------------------
++  Commands output for a new segment - toolpath
++  with same toolnumber but maybe different feedrates
++---------------------------------------------------
+
+begin NEW_SEGMENT
+
+"([TOOLPATH_NAME])"
+"([TOOLPATH_NOTES])"
+"[S] M03"
+"G04 P6"
 
 +---------------------------------------------
 +  Commands output for a dwell move
@@ -150,7 +182,6 @@ begin TOOLCHANGE
 begin DWELL_MOVE
 
 "G4[DWELL]"
-
 
 +---------------------------------------------------
 +  Commands output for rapid moves
@@ -222,6 +253,70 @@ begin FIRST_CCW_ARC_MOVE
 begin CCW_ARC_MOVE
 
 "G3[X][Y][I][J][P]"
+
++---------------------------------------------------
++  Commands output for first clockwise helical arc  moves
++---------------------------------------------------
+
+begin FIRST_CW_HELICAL_ARC_MOVE
+
+"G2  [X] [Y] [Z] [I] [J] [F] [P]"
+
++---------------------------------------------------
++  Commands output for clockwise helical arc  moves
++---------------------------------------------------
+
+begin CW_HELICAL_ARC_MOVE
+
+"G2 [X] [Y] [Z] [I] [J] [P]"
+
++---------------------------------------------------
++  Commands output for first counterclockwise helical arc  moves
++---------------------------------------------------
+
+begin FIRST_CCW_HELICAL_ARC_MOVE
+
+"G3 [X] [Y] [Z] [I] [J] [F] [P]"
+
++---------------------------------------------------
++  Commands output for counterclockwise helical arc  moves
++---------------------------------------------------
+
+begin CCW_HELICAL_ARC_MOVE
+
+"G3 [X] [Y] [Z] [I] [J] [P]"
+
++---------------------------------------------------
++  Commands output for first clockwise helical arc plunge moves
++---------------------------------------------------
+
+begin FIRST_CW_HELICAL_ARC_PLUNGE_MOVE
+
+"G2 [X] [Y] [Z] [I] [J] [F] [P]"
+
++---------------------------------------------------
++  Commands output for clockwise helical arc plunge moves
++---------------------------------------------------
+
+begin CW_HELICAL_ARC_PLUNGE_MOVE
+
+"G2 [X] [Y] [Z] [I] [J] [P]"
+
++---------------------------------------------------
++  Commands output for first counter clockwise helical arc plunge moves
++---------------------------------------------------
+
+begin FIRST_CCW_HELICAL_ARC_PLUNGE_MOVE
+
+"G3 [X] [Y] [Z] [I] [J] [F] [P]"
+
++---------------------------------------------------
++  Commands output for counter clockwise helical arc plunge moves
++---------------------------------------------------
+
+begin CCW_HELICAL_ARC_PLUNGE_MOVE
+
+"G3 [X] [Y] [Z] [I] [J] [P]"
 
 
 +---------------------------------------------------
